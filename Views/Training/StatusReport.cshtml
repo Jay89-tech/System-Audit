@@ -1,0 +1,190 @@
+﻿@model List<(SkillsAuditSystem.Models.Training Training, SkillsAuditSystem.Models.Employee Employee)>
+
+@{
+    ViewData["Title"] = "Training Status Report";
+    var statusDistribution = ViewBag.StatusDistribution as Dictionary<string, int>;
+}
+
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1><i class="fas fa-chart-bar"></i> Training Status Report</h1>
+            <div class="breadcrumb">
+                <a asp-controller="Dashboard" asp-action="Index" style="color: #6b7280; text-decoration: none;">Home</a>
+                <span>/</span>
+                <a asp-action="Index" style="color: #6b7280; text-decoration: none;">Trainings</a>
+                <span>/</span>
+                <span>Status Report</span>
+            </div>
+        </div>
+        <a asp-action="ExportProgress" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Export Report
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    @if (statusDistribution != null)
+    {
+        <div class="stat-card">
+            <h4>Total Trainings</h4>
+            <div class="stat-value">@Model.Count</div>
+            <p style="font-size: 14px; opacity: 0.9;">All trainings</p>
+        </div>
+
+        @if (statusDistribution.ContainsKey("completed"))
+        {
+            <div class="stat-card success">
+                <h4>Completed</h4>
+                <div class="stat-value">@statusDistribution["completed"]</div>
+                <p style="font-size: 14px; opacity: 0.9;">@Math.Round((statusDistribution["completed"] * 100.0) / Model.Count, 1)% completion rate</p>
+            </div>
+        }
+
+        @if (statusDistribution.ContainsKey("in_progress"))
+        {
+            <div class="stat-card info">
+                <h4>In Progress</h4>
+                <div class="stat-value">@statusDistribution["in_progress"]</div>
+                <p style="font-size: 14px; opacity: 0.9;">Active trainings</p>
+            </div>
+        }
+
+        @if (statusDistribution.ContainsKey("suggested"))
+        {
+            <div class="stat-card warning">
+                <h4>Suggested</h4>
+                <div class="stat-value">@statusDistribution["suggested"]</div>
+                <p style="font-size: 14px; opacity: 0.9;">Awaiting start</p>
+            </div>
+        }
+    }
+</div>
+
+<!-- Status Distribution Chart -->
+@if (statusDistribution != null && statusDistribution.Any())
+{
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+            <h3>Status Distribution</h3>
+        </div>
+        <div class="card-body">
+            <div style="padding: 20px;">
+                @foreach (var status in statusDistribution.OrderByDescending(x => x.Value))
+                {
+                    var statusColor = status.Key switch
+                    {
+                        "completed" => "var(--success)",
+                        "in_progress" => "var(--info)",
+                        "not_started" => "var(--warning)",
+                        "suggested" => "var(--deep-blue)",
+                        _ => "var(--soft-grey)"
+                    };
+
+                    var statusLabel = status.Key switch
+                    {
+                        "completed" => "Completed",
+                        "in_progress" => "In Progress",
+                        "not_started" => "Not Started",
+                        "suggested" => "Suggested",
+                        _ => status.Key
+                    };
+
+                    var percentage = Math.Round((status.Value * 100.0) / Model.Count, 1);
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-weight: 600; color: var(--dark-grey);">@statusLabel</span>
+                            <span style="color: @statusColor; font-weight: 600;">@status.Value (@percentage%)</span>
+                        </div>
+                        <div style="background-color: var(--soft-grey); height: 12px; border-radius: 6px; overflow: hidden;">
+                            <div style="background-color: @statusColor; height: 100%; width: @percentage%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Detailed Training List -->
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3>Training Details by Status</h3>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            @foreach (var statusGroup in Model.GroupBy(t => t.Training.Status).OrderBy(g => g.Key))
+            {
+                var statusLabel = statusGroup.Key.Replace("_", " ");
+                var statusColor = statusGroup.Key switch
+                {
+                    "completed" => "var(--success)",
+                    "in_progress" => "var(--info)",
+                    "not_started" => "var(--warning)",
+                    "suggested" => "var(--deep-blue)",
+                    _ => "var(--soft-grey)"
+                };
+
+                <div style="margin-bottom: 30px;">
+                    <h4 style="color: @statusColor; margin-bottom: 15px; text-transform: capitalize;">
+                        <i class="fas fa-circle" style="font-size: 12px;"></i> @statusLabel (@statusGroup.Count())
+                    </h4>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Training Name</th>
+                                    <th>Provider</th>
+                                    <th>Progress</th>
+                                    <th>Start Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in statusGroup.OrderBy(t => t.Employee.Name))
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Employee" asp-action="Details" asp-route-id="@item.Employee.Id"
+                                               style="color: var(--deep-blue); text-decoration: none; font-weight: 600;">
+                                                @item.Employee.Name
+                                            </a>
+                                        </td>
+                                        <td>@item.Training.TrainingName</td>
+                                        <td>@(item.Training.Provider ?? "N/A")</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="flex: 1; background-color: #e5e7eb; height: 8px; border-radius: 4px; min-width: 80px;">
+                                                    <div style="background-color: @statusColor; height: 100%; width: @item.Training.Progress%; border-radius: 4px;"></div>
+                                                </div>
+                                                <span style="min-width: 40px; font-weight: 600;">@item.Training.Progress%</span>
+                                            </div>
+                                        </td>
+                                        <td>@(item.Training.StartDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                        <td>
+                                            <a asp-action="Details" asp-route-id="@item.Training.Id" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-chart-bar" style="font-size: 48px; color: var(--soft-grey);"></i>
+                <p style="color: #6b7280; margin-top: 15px;">No training data available</p>
+            </div>
+        }
+    </div>
+</div>

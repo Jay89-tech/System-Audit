@@ -1,0 +1,95 @@
+﻿@model List<SkillsAuditSystem.Models.Employee>
+
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1><i class="fas fa-users"></i> Employees</h1>
+            <div class="breadcrumb">
+                <span>Home</span>
+                <span>/</span>
+                <span>Employees</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a asp-action="ExportPdf" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </a>
+            <a asp-action="ExportExcel" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Add Employee
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>All Employees (@Model.Count)</h3>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Cell Number</th>
+                            <th>Profession</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var employee in Model)
+                        {
+                            <tr>
+                                <td style="font-weight: 500;">@employee.Name</td>
+                                <td>@employee.Email</td>
+                                <td>@employee.CellNumber</td>
+                                <td>@employee.Profession</td>
+                                <td>
+                                    @if (employee.IsActive)
+                                    {
+                                        <span class="badge badge-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 5px;">
+                                        <a asp-action="Details" asp-route-id="@employee.Id" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@employee.Id" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-users" style="font-size: 48px; color: var(--soft-grey);"></i>
+                <p style="color: #6b7280; margin-top: 15px;">No employees found</p>
+                <a asp-action="Create" class="btn btn-primary" style="margin-top: 15px;">
+                    <i class="fas fa-user-plus"></i> Add First Employee
+                </a>
+            </div>
+        }
+    </div>
+</div>

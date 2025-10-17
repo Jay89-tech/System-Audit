@@ -1,0 +1,89 @@
+﻿@model SkillsAuditSystem.Models.ViewModels.CreateEmployeeViewModel
+
+@{
+    ViewData["Title"] = "Create Employee";
+}
+
+<div class="page-header">
+    <h1><i class="fas fa-user-plus"></i> Create New Employee</h1>
+    <div class="breadcrumb">
+        <a asp-controller="Dashboard" asp-action="Index" style="color: #6b7280; text-decoration: none;">Home</a>
+        <span>/</span>
+        <a asp-controller="Employee" asp-action="Index" style="color: #6b7280; text-decoration: none;">Employees</a>
+        <span>/</span>
+        <span>Create</span>
+    </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header">
+        <h3>Employee Information</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-error"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label">Full Name *</label>
+                    <input asp-for="Name" class="form-control" placeholder="John Doe" />
+                    <span asp-validation-for="Name" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">Email Address *</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="john.doe@company.com" />
+                    <span asp-validation-for="Email" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label asp-for="CellNumber" class="form-label">Cell Number *</label>
+                    <input asp-for="CellNumber" class="form-control" placeholder="+27 12 345 6789" />
+                    <span asp-validation-for="CellNumber" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Profession" class="form-label">Profession *</label>
+                    <input asp-for="Profession" class="form-control" placeholder="Software Developer" />
+                    <span asp-validation-for="Profession" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <hr style="margin: 30px 0; border: 1px solid var(--soft-grey);" />
+
+            <h4 style="margin-bottom: 20px; color: var(--dark-grey);">
+                <i class="fas fa-lock"></i> Login Credentials
+            </h4>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">Password *</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Min. 6 characters" />
+                    <span asp-validation-for="Password" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password *</label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Create Employee
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

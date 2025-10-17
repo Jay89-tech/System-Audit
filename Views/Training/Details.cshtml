@@ -1,0 +1,151 @@
+﻿@model SkillsAuditSystem.Models.Training
+
+@{
+    ViewData["Title"] = "Training Details";
+    var employee = ViewBag.Employee as SkillsAuditSystem.Models.Employee;
+}
+
+<div class="page-header">
+    <h1><i class="fas fa-graduation-cap"></i> Training Details</h1>
+    <div class="breadcrumb">
+        <a asp-controller="Dashboard" asp-action="Index" style="color: #6b7280; text-decoration: none;">Home</a>
+        <span>/</span>
+        <a asp-action="Index" style="color: #6b7280; text-decoration: none;">Trainings</a>
+        <span>/</span>
+        <span>Details</span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Model.TrainingName</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+            <!-- Main Info -->
+            <div>
+                <h4 style="margin-bottom: 20px; color: var(--dark-grey);">Training Information</h4>
+
+                @if (employee != null)
+                {
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #6b7280; font-size: 14px;">Employee</label>
+                        <p style="font-size: 16px; margin-top: 5px;">
+                            <a asp-controller="Employee" asp-action="Details" asp-route-id="@employee.Id" style="color: var(--deep-blue); text-decoration: none;">
+                                @employee.Name
+                            </a>
+                        </p>
+                    </div>
+                }
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #6b7280; font-size: 14px;">Training Name</label>
+                    <p style="font-size: 16px; margin-top: 5px;">@Model.TrainingName</p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Provider))
+                {
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #6b7280; font-size: 14px;">Provider</label>
+                        <p style="font-size: 16px; margin-top: 5px;">@Model.Provider</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #6b7280; font-size: 14px;">Description</label>
+                        <p style="font-size: 16px; margin-top: 5px; line-height: 1.6;">@Model.Description</p>
+                    </div>
+                }
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #6b7280; font-size: 14px;">Progress</label>
+                    <div style="margin-top: 10px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="flex: 1; background-color: #e5e7eb; height: 20px; border-radius: 10px;">
+                                <div style="background-color: var(--success); height: 100%; width: @Model.Progress%; border-radius: 10px; transition: width 0.3s;"></div>
+                            </div>
+                            <span style="font-size: 24px; font-weight: bold; color: var(--deep-blue); min-width: 60px;">@Model.Progress%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Card -->
+            <div>
+                <div style="background: linear-gradient(135deg, var(--deep-blue) 0%, var(--light-blue) 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                    @{
+                        var statusIcon = Model.Status switch
+                        {
+                            "completed" => "fas fa-check-circle",
+                            "in_progress" => "fas fa-spinner",
+                            "suggested" => "fas fa-lightbulb",
+                            _ => "fas fa-clock"
+                        };
+                        var statusLabel = Model.Status.Replace("_", " ").ToUpper();
+                    }
+
+                    <i class="@statusIcon" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <h3 style="color: white; margin: 0;">@statusLabel</h3>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background-color: #f9fafb; border-radius: 8px;">
+                    <h5 style="margin-bottom: 15px; color: var(--dark-grey);">Timeline</h5>
+
+                    @if (Model.StartDate != null)
+                    {
+                        <div style="margin-bottom: 10px;">
+                            <i class="fas fa-play-circle" style="color: var(--info);"></i>
+                            <strong style="margin-left: 8px;">Start:</strong>
+                            <span style="margin-left: 8px;">@Model.StartDate?.ToString("dd MMM yyyy")</span>
+                        </div>
+                    }
+
+                    @if (Model.EndDate != null)
+                    {
+                        <div style="margin-bottom: 10px;">
+                            <i class="fas fa-flag-checkered" style="color: var(--warning);"></i>
+                            <strong style="margin-left: 8px;">End:</strong>
+                            <span style="margin-left: 8px;">@Model.EndDate?.ToString("dd MMM yyyy")</span>
+                        </div>
+                    }
+
+                    @if (Model.CompletionDate != null)
+                    {
+                        <div>
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                            <strong style="margin-left: 8px;">Completed:</strong>
+                            <span style="margin-left: 8px;">@Model.CompletionDate?.ToString("dd MMM yyyy")</span>
+                        </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.SuggestedBy))
+                {
+                    <div style="margin-top: 15px; padding: 15px; background-color: #fef3c7; border-radius: 8px;">
+                        <i class="fas fa-user-tie" style="color: #92400e;"></i>
+                        <strong style="margin-left: 8px; color: #92400e;">Suggested by HR</strong>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #d3d3d3;">
+            <div style="display: flex; gap: 10px;">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Training
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this training?');">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

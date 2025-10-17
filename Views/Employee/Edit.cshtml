@@ -1,0 +1,134 @@
+﻿@model SkillsAuditSystem.Models.Employee
+
+@{
+    ViewData["Title"] = "Edit Employee";
+}
+
+<div class="page-header">
+    <h1><i class="fas fa-user-edit"></i> Edit Employee</h1>
+    <div class="breadcrumb">
+        <a asp-controller="Dashboard" asp-action="Index" style="color: #6b7280; text-decoration: none;">Home</a>
+        <span>/</span>
+        <a asp-action="Index" style="color: #6b7280; text-decoration: none;">Employees</a>
+        <span>/</span>
+        <span>Edit</span>
+    </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header">
+        <h3>Edit Employee Information</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id)
+            @Html.HiddenFor(m => m.Uid)
+            @Html.HiddenFor(m => m.Role)
+            @Html.HiddenFor(m => m.CreatedAt)
+            @Html.HiddenFor(m => m.ProfileImageUrl)
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-error"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Name -->
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label">Full Name *</label>
+                    <input asp-for="Name" class="form-control" placeholder="John Doe" />
+                    <span asp-validation-for="Name" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Email (Read-only) -->
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">Email Address</label>
+                    <input asp-for="Email" class="form-control" readonly style="background-color: #f3f4f6;" />
+                    <small style="color: #6b7280; font-size: 11px;">Email cannot be changed</small>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Cell Number -->
+                <div class="form-group">
+                    <label asp-for="CellNumber" class="form-label">Cell Number *</label>
+                    <input asp-for="CellNumber" class="form-control" placeholder="+27 12 345 6789" />
+                    <span asp-validation-for="CellNumber" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Profession -->
+                <div class="form-group">
+                    <label asp-for="Profession" class="form-label">Profession *</label>
+                    <input asp-for="Profession" class="form-control" placeholder="Software Developer" />
+                    <span asp-validation-for="Profession" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" asp-for="IsActive" style="width: auto; margin-right: 8px;" />
+                    Active Account
+                </label>
+                <small style="display: block; color: #6b7280; font-size: 12px; margin-top: 5px;">
+                    Inactive accounts cannot login to the mobile app
+                </small>
+            </div>
+
+            <hr style="margin: 30px 0; border: 1px solid var(--soft-grey);" />
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Account Actions -->
+<div class="card" style="max-width: 800px; margin: 20px auto 0;">
+    <div class="card-header" style="background-color: #fee2e2;">
+        <h3 style="color: #991b1b;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div>
+                <h4 style="margin: 0 0 5px 0; color: var(--dark-grey);">Toggle Account Status</h4>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                    @if (Model.IsActive)
+                    {
+                        <text>Deactivate this account to prevent mobile app login</text>
+                    }
+                    else
+                    {
+                        <text>Activate this account to allow mobile app login</text>
+                    }
+                </p>
+            </div>
+            <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn @(Model.IsActive ? "btn-warning" : "btn-success")"
+                        onclick="return confirm('Are you sure you want to @(Model.IsActive ? "deactivate" : "activate") this account?');">
+                    <i class="fas fa-power-off"></i> @(Model.IsActive ? "Deactivate" : "Activate")
+                </button>
+            </form>
+        </div>
+
+        <hr style="margin: 20px 0;" />
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h4 style="margin: 0 0 5px 0; color: var(--dark-grey);">Delete Employee</h4>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">Permanently delete this employee and all associated data</p>
+            </div>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete Account
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

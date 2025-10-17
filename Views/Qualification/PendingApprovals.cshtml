@@ -1,0 +1,102 @@
+﻿@model List<(SkillsAuditSystem.Models.Qualification Qualification, SkillsAuditSystem.Models.Employee Employee)>
+
+@{
+    ViewData["Title"] = "Pending Approvals";
+}
+
+<div class="page-header">
+    <h1><i class="fas fa-certificate"></i> Pending Qualifications</h1>
+    <div class="breadcrumb">
+        <a asp-controller="Dashboard" asp-action="Index" style="color: #6b7280; text-decoration: none;">Home</a>
+        <span>/</span>
+        <span>Pending Approvals</span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Qualifications Awaiting Approval (@Model.Count)</h3>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Qualification</th>
+                            <th>Institution</th>
+                            <th>Year</th>
+                            <th>Submitted</th>
+                            <th>Certificate</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Employee" asp-action="Details" asp-route-id="@item.Employee.Id"
+                                       style="color: var(--deep-blue); text-decoration: none; font-weight: 600;">
+                                        @item.Employee.Name
+                                    </a>
+                                    <br />
+                                    <small style="color: #6b7280;">@item.Employee.Profession</small>
+                                </td>
+                                <td style="font-weight: 500;">@item.Qualification.QualificationName</td>
+                                <td>@item.Qualification.Institution</td>
+                                <td>@(item.Qualification.YearObtained?.ToString() ?? "N/A")</td>
+                                <td>@item.Qualification.CreatedAt.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Qualification.CertificateUrl))
+                                    {
+                                        <a href="@item.Qualification.CertificateUrl" target="_blank" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: #6b7280;">No certificate</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 5px;">
+                                        <a asp-action="Details" asp-route-id="@item.Qualification.Id" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">
+                                            <i class="fas fa-info-circle"></i> Details
+                                        </a>
+                                        <form asp-action="Approve" asp-route-id="@item.Qualification.Id" method="post" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-success" style="padding: 5px 10px; font-size: 12px;"
+                                                    onclick="return confirm('Approve this qualification?');">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 60px 20px;">
+                <i class="fas fa-check-circle" style="font-size: 64px; color: #10b981; margin-bottom: 20px;"></i>
+                <h3 style="color: #333; margin-bottom: 10px;">All Caught Up!</h3>
+                <p style="color: #6b7280;">No pending qualifications to review at the moment.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh every 30 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+}

@@ -1,0 +1,238 @@
+﻿@using SkillsAuditSystem.Models;
+
+@model SkillsAuditSystem.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-header">
+    <h1><i class="fas fa-home"></i> Dashboard</h1>
+    <div class="breadcrumb">
+        <span>Home</span>
+        <span>/</span>
+        <span>Dashboard</span>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h4>Total Employees</h4>
+        <div class="stat-value">@Model.TotalEmployees</div>
+        <p style="font-size: 14px; opacity: 0.9;">@Model.ActiveEmployees active</p>
+    </div>
+
+    <div class="stat-card success">
+        <h4>Total Qualifications</h4>
+        <div class="stat-value">@Model.TotalQualifications</div>
+        <p style="font-size: 14px; opacity: 0.9;">Across all employees</p>
+    </div>
+
+    <div class="stat-card warning">
+        <h4>Pending Approvals</h4>
+        <div class="stat-value">@Model.PendingApprovals</div>
+        <p style="font-size: 14px; opacity: 0.9;">Require attention</p>
+    </div>
+
+    <div class="stat-card info">
+        <h4>Completed Trainings</h4>
+        <div class="stat-value">@Model.CompletedTrainings</div>
+        <p style="font-size: 14px; opacity: 0.9;">@Model.InProgressTrainings in progress</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- Recent Employees -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-users"></i> Recent Employees</h3>
+        </div>
+        <div class="card-body">
+            @if (Model.RecentEmployees.Any())
+            {
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Profession</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employee in Model.RecentEmployees)
+                            {
+                                <tr>
+                                    <td>@employee.Name</td> @* **CORRECTED: Displaying Name** *@
+                                    <td>@employee.Profession</td> @* **CORRECTED: Displaying Profession** *@
+                                    <td>
+                                        @if (employee.IsActive)
+                                        {
+                                            <span class="badge badge-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">Inactive</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p style="text-align: center; color: #6b7280; padding: 20px;">No employees found</p>
+            }
+        </div>
+    </div>
+
+    <!-- Pending Qualifications -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-certificate"></i> Pending Qualifications</h3>
+        </div>
+        <div class="card-body">
+            @if (Model.PendingQualifications.Any())
+            {
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Qualification</th>
+                                <th>Institution</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var qual in Model.PendingQualifications)
+                            {
+                                <tr>
+                                    <td>@qual.QualificationName</td>
+                                    <td>@qual.Institution</td>
+                                    <td>
+                                        <a asp-controller="Qualification" asp-action="Details" asp-route-id="@qual.Id" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">
+                                            Review
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p style="text-align: center; color: #6b7280; padding: 20px;">No pending qualifications</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+    <!-- Employees by Profession -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-pie"></i> Employees by Profession</h3>
+        </div>
+        <div class="card-body">
+            @if (Model.EmployeesByProfession.Any())
+            {
+                <div style="padding: 20px;">
+                    @foreach (var profession in Model.EmployeesByProfession.OrderByDescending(x => x.Value))
+                    {
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-weight: 500;">@profession.Key</span>
+                                <span style="color: var(--deep-blue); font-weight: 600;">@profession.Value</span>
+                            </div>
+                            <div style="background-color: var(--soft-grey); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div style="background-color: var(--deep-blue); height: 100%; width: @((profession.Value * 100.0 / Model.TotalEmployees))%;"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p style="text-align: center; color: #6b7280; padding: 20px;">No data available</p>
+            }
+        </div>
+    </div>
+
+    <!-- Training Status Distribution -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-bar"></i> Training Status</h3>
+        </div>
+        <div class="card-body">
+            @if (Model.TrainingStatusDistribution.Any())
+            {
+                <div style="padding: 20px;">
+                    @foreach (var status in Model.TrainingStatusDistribution.OrderByDescending(x => x.Value))
+                    {
+                        var statusColor = status.Key switch
+                        {
+                            "completed" => "var(--success)",
+                            "in_progress" => "var(--info)",
+                            "not_started" => "var(--warning)",
+                            "suggested" => "var(--deep-blue)",
+                            _ => "var(--soft-grey)"
+                        };
+
+                        var statusLabel = status.Key switch
+                        {
+                            "completed" => "Completed",
+                            "in_progress" => "In Progress",
+                            "not_started" => "Not Started",
+                            "suggested" => "Suggested",
+                            _ => status.Key
+                        };
+
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-weight: 500;">@statusLabel</span>
+                                <span style="color: @statusColor; font-weight: 600;">@status.Value</span>
+                            </div>
+                            <div style="background-color: var(--soft-grey); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div style="background-color: @statusColor; height: 100%; width: @((status.Value * 100.0 / Model.TrainingStatusDistribution.Values.Sum()))%;"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p style="text-align: center; color: #6b7280; padding: 20px;">No training data available</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; padding: 10px;">
+            <a asp-controller="Employee" asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Add New Employee
+            </a>
+            <a asp-controller="Qualification" asp-action="PendingApprovals" class="btn btn-warning">
+                <i class="fas fa-certificate"></i> Review Qualifications
+            </a>
+            <a asp-controller="Report" asp-action="Index" class="btn btn-success">
+                <i class="fas fa-file-export"></i> Generate Reports
+            </a>
+            <a asp-controller="Training" asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-graduation-cap"></i> View All Trainings
+            </a>
+        </div>
+    </div>
+</div>
+</td>
+<td>

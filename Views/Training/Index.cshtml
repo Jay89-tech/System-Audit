@@ -1,0 +1,150 @@
+﻿@model List<(SkillsAuditSystem.Models.Training Training, SkillsAuditSystem.Models.Employee Employee)>
+
+@{
+    ViewData["Title"] = "Trainings";
+}
+
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1><i class="fas fa-graduation-cap"></i> Trainings</h1>
+            <div class="breadcrumb">
+                <span>Home</span>
+                <span>/</span>
+                <span>Trainings</span>
+            </div>
+        </div>
+        <div>
+            <a asp-action="ExportProgress" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Export Progress
+            </a>
+            <a asp-action="StatusReport" class="btn btn-primary">
+                <i class="fas fa-chart-bar"></i> Status Report
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="card" style="margin-bottom: 20px;">
+    <div class="card-body" style="padding: 15px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-secondary" onclick="filterTrainings('all')" id="btn-all">All (@Model.Count)</button>
+            <button class="btn btn-secondary" onclick="filterTrainings('suggested')" id="btn-suggested">Suggested (@Model.Count(t => t.Training.Status == "suggested"))</button>
+            <button class="btn btn-secondary" onclick="filterTrainings('in_progress')" id="btn-in_progress">In Progress (@Model.Count(t => t.Training.Status == "in_progress"))</button>
+            <button class="btn btn-secondary" onclick="filterTrainings('completed')" id="btn-completed">Completed (@Model.Count(t => t.Training.Status == "completed"))</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>All Trainings</h3>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table id="trainingsTable">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Training Name</th>
+                            <th>Provider</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Start Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr data-status="@item.Training.Status">
+                                <td>
+                                    <a asp-controller="Employee" asp-action="Details" asp-route-id="@item.Employee.Id"
+                                       style="color: var(--deep-blue); text-decoration: none; font-weight: 600;">
+                                        @item.Employee.Name
+                                    </a>
+                                </td>
+                                <td style="font-weight: 500;">@item.Training.TrainingName</td>
+                                <td>@(item.Training.Provider ?? "N/A")</td>
+                                <td>
+                                    @{
+                                        var badgeClass = item.Training.Status switch
+                                        {
+                                            "completed" => "badge-success",
+                                            "in_progress" => "badge-info",
+                                            "suggested" => "badge-warning",
+                                            _ => "badge-secondary"
+                                        };
+                                        var statusLabel = item.Training.Status.Replace("_", " ").ToUpper();
+                                    }
+                                    <span class="badge @badgeClass">@statusLabel</span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="flex: 1; background-color: #e5e7eb; height: 8px; border-radius: 4px; min-width: 100px;">
+                                            <div style="background-color: var(--success); height: 100%; width: @item.Training.Progress%; border-radius: 4px;"></div>
+                                        </div>
+                                        <span style="min-width: 40px; text-align: right; font-weight: 600;">@item.Training.Progress%</span>
+                                    </div>
+                                </td>
+                                <td>@(item.Training.StartDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                <td>
+                                    <div style="display: flex; gap: 5px;">
+                                        <a asp-action="Details" asp-route-id="@item.Training.Id" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Training.Id" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-graduation-cap" style="font-size: 48px; color: var(--soft-grey);"></i>
+                <p style="color: #6b7280; margin-top: 15px;">No trainings found</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentFilter = 'all';
+
+        function filterTrainings(status) {
+            currentFilter = status;
+            const rows = document.querySelectorAll('#trainingsTable tbody tr');
+
+            // Update button styles
+            document.querySelectorAll('[id^="btn-"]').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            document.getElementById('btn-' + status).classList.remove('btn-secondary');
+            document.getElementById('btn-' + status).classList.add('btn-primary');
+
+            // Filter rows
+            rows.forEach(row => {
+                if (status === 'all' || row.getAttribute('data-status') === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Set initial filter
+        document.getElementById('btn-all').classList.remove('btn-secondary');
+        document.getElementById('btn-all').classList.add('btn-primary');
+    </script>
+}

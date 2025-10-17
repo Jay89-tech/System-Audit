@@ -1,0 +1,88 @@
+﻿@model SkillsAuditSystem.Models.Employee
+
+@{
+    ViewData["Title"] = "Delete Employee";
+}
+
+<div class="page-header">
+    <h1><i class="fas fa-exclamation-triangle"></i> Delete Employee</h1>
+    <div class="breadcrumb">
+        <a asp-controller="Dashboard" asp-action="Index" style="color: #6b7280; text-decoration: none;">Home</a>
+        <span>/</span>
+        <a asp-action="Index" style="color: #6b7280; text-decoration: none;">Employees</a>
+        <span>/</span>
+        <span>Delete</span>
+    </div>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto; border: 2px solid #ef4444;">
+    <div class="card-header" style="background-color: #fee2e2;">
+        <h3 style="color: #991b1b; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 24px;"></i>
+            Confirm Deletion
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-error" style="margin-bottom: 20px;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Warning:</strong> This action cannot be undone!
+        </div>
+
+        <h4 style="margin-bottom: 20px;">Are you sure you want to delete this employee?</h4>
+
+        <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="margin-bottom: 10px;">
+                <strong style="color: #6b7280;">Name:</strong>
+                <span style="font-size: 16px; margin-left: 10px;">@Model.Name</span>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <strong style="color: #6b7280;">Email:</strong>
+                <span style="font-size: 16px; margin-left: 10px;">@Model.Email</span>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <strong style="color: #6b7280;">Profession:</strong>
+                <span style="font-size: 16px; margin-left: 10px;">@Model.Profession</span>
+            </div>
+            <div>
+                <strong style="color: #6b7280;">Status:</strong>
+                <span style="margin-left: 10px;">
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge badge-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">Inactive</span>
+                    }
+                </span>
+            </div>
+        </div>
+
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 20px;">
+            <h5 style="margin: 0 0 10px 0; color: #92400e;">
+                <i class="fas fa-info-circle"></i> This will permanently delete:
+            </h5>
+            <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+                <li>Employee profile and account</li>
+                <li>All qualifications submitted by this employee</li>
+                <li>All training records</li>
+                <li>All skill records</li>
+                <li>Firebase authentication account</li>
+            </ul>
+        </div>
+
+        <form asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id)
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete Permanently
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
